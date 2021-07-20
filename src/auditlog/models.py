@@ -7,9 +7,19 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet, Q
-from django.utils.encoding import python_2_unicode_compatible, smart_text
-from django.utils.six import iteritems, integer_types
+from django.utils.encoding import smart_text
+# from django.utils.six import iteritems, integer_types
 from django.utils.translation import ugettext_lazy as _
+
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    from six import python_2_unicode_compatible
+
+try:
+    from django.utils.six import iteritems, integer_types
+except ImportError:
+    from six import iteritems, integer_types
 
 from jsonfield_compat import JSONField
 

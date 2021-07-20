@@ -1,7 +1,12 @@
 import json
 
 from django.conf import settings
-from django.core import urlresolvers
+
+try:
+    from django.core.urlresolvers import reverse
+except ImportError:
+    from django.urls import reverse
+
 try:
     from django.urls.exceptions import NoReverseMatch
 except ImportError:
@@ -20,7 +25,7 @@ class LogEntryAdminMixin(object):
         if obj.actor:
             app_label, model = settings.AUTH_USER_MODEL.split('.')
             viewname = 'admin:%s_%s_change' % (app_label, model.lower())
-            link = urlresolvers.reverse(viewname, args=[obj.actor.id])
+            link = reverse(viewname, args=[obj.actor.id])
             return u'<a href="%s">%s</a>' % (link, obj.actor)
 
         return 'system'
@@ -31,7 +36,7 @@ class LogEntryAdminMixin(object):
         app_label, model = obj.content_type.app_label, obj.content_type.model
         viewname = 'admin:%s_%s_change' % (app_label, model)
         try:
-            link = urlresolvers.reverse(viewname, args=[obj.object_id])
+            link = reverse(viewname, args=[obj.object_id])
         except NoReverseMatch:
             return obj.object_repr
         else:
