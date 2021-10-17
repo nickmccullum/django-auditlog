@@ -10,6 +10,7 @@ from django.db.models import QuerySet, Q
 from django.utils.encoding import smart_text
 # from django.utils.six import iteritems, integer_types
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.postgres.fields import JSONField
 
 try:
     from django.utils.encoding import python_2_unicode_compatible
@@ -179,7 +180,7 @@ class LogEntry(models.Model):
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.SET_NULL, related_name='+', verbose_name=_("actor"))
     remote_addr = models.GenericIPAddressField(blank=True, null=True, verbose_name=_("remote address"))
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("timestamp"))
-    additional_data = models.JSONField(blank=True, null=True, verbose_name=_("additional data"))
+    additional_data = JSONField(blank=True, null=True, verbose_name=_("additional data"))
 
     objects = LogEntryManager()
 
