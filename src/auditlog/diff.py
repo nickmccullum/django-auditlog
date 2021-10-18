@@ -20,12 +20,13 @@ def track_field(field):
     :rtype: bool
     """
     from auditlog.models import LogEntry
+
     # Do not track many to many relations
     if field.many_to_many:
         return False
 
     # Do not track relations to LogEntry
-    if getattr(field, 'rel', None) is not None and field.rel.to == LogEntry:
+    if getattr(field, "rel", None) is not None and field.rel.to == LogEntry:
         return False
 
     return True
@@ -44,7 +45,7 @@ def get_fields_in_model(instance):
     assert isinstance(instance, Model)
 
     # Check if the Django 1.8 _meta API is available
-    use_api = hasattr(instance._meta, 'get_fields') and callable(instance._meta.get_fields)
+    use_api = hasattr(instance._meta, "get_fields") and callable(instance._meta.get_fields)
 
     if use_api:
         return [f for f in instance._meta.get_fields() if track_field(f)]
@@ -67,7 +68,11 @@ def get_field_value(obj, field):
         try:
             value = field.to_python(getattr(obj, field.name, None))
             if value is not None and settings.USE_TZ:
-                value = timezone.make_naive(value, timezone=timezone.utc)
+                try:
+                    value = timezone.make_naive(value, timezone=timezone.utc)
+                except ValueError:
+                    pass
+                    # This means the datetime was already naive :D
         except ObjectDoesNotExist:
             value = field.default if field.default is not NOT_PROVIDED else None
 
@@ -101,9 +106,9 @@ def model_instance_diff(old, new):
     """
     from auditlog.registry import auditlog
 
-    if not(old is None or isinstance(old, Model)):
+    if not (old is None or isinstance(old, Model)):
         raise TypeError("The supplied old instance is not a valid model instance.")
-    if not(new is None or isinstance(new, Model)):
+    if not (new is None or isinstance(new, Model)):
         raise TypeError("The supplied new instance is not a valid model instance.")
 
     diff = {}
@@ -122,16 +127,14 @@ def model_instance_diff(old, new):
         model_fields = None
 
     # Check if fields must be filtered
-    if model_fields and (model_fields['include_fields'] or model_fields['exclude_fields']) and fields:
+    if model_fields and (model_fields["include_fields"] or model_fields["exclude_fields"]) and fields:
         filtered_fields = []
-        if model_fields['include_fields']:
-            filtered_fields = [field for field in fields
-                               if field.name in model_fields['include_fields']]
+        if model_fields["include_fields"]:
+            filtered_fields = [field for field in fields if field.name in model_fields["include_fields"]]
         else:
             filtered_fields = fields
-        if model_fields['exclude_fields']:
-            filtered_fields = [field for field in filtered_fields
-                               if field.name not in model_fields['exclude_fields']]
+        if model_fields["exclude_fields"]:
+            filtered_fields = [field for field in filtered_fields if field.name not in model_fields["exclude_fields"]]
         fields = filtered_fields
 
     for field in fields:
