@@ -5,7 +5,7 @@ import time
 
 from django.conf import settings
 from django.db.models.signals import pre_save
-from funtools import partial as curry
+from functools import partial as curry
 from django.apps import apps
 from auditlog.models import LogEntry
 
